@@ -1,229 +1,396 @@
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <title>Code 39 Scanner</title>
-        <!-- PWA мета-теги -->
-        <meta name="description" content="Сканер штрих-кодов Code 39 для мобильных устройств">
-        <meta name="theme-color" content="#ff6b35">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="Scanner39">
-        <!-- PWA иконки -->
-        <link rel="icon" type="image/svg+xml" href="icon.svg">
-        <link rel="apple-touch-icon" href="icon.svg">
-        <link rel="manifest" href="manifest.json">
-        <style>
-* {margin:0; padding:0; box-sizing:border-box;}
-body {font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; background:#f5f5f5; color:#333; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:20px;}
-.container {width:100%; max-width:600px; text-align:center; background:white; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1); padding:30px;}
-.header {margin-bottom:30px;}
-.logo {width:80px; height:80px; margin:0 auto 20px; background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%); border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px; color:white; font-weight:bold; box-shadow:0 5px 15px rgba(255,107,53,0.3);}
-.header h1 {font-size:2.2em; margin-bottom:10px; color:#ff6b35;}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Code 39 Scanner</title>
+  <meta name="description" content="Сканер штрих-кодов Code 39 для мобильных устройств" />
+  <meta name="theme-color" content="#ff6b35" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Scanner39" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+.container{width:100%;max-width:600px;text-align:center;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:30px}
+.header{margin-bottom:30px}
+.logo{width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;box-shadow:0 5px 15px rgba(255,107,53,.3)}
+.header h1{font-size:2.2em;margin-bottom:10px;color:#ff6b35}
+.scanner-container{position:relative;width:100%;height:300px;background:#000;border-radius:15px;overflow:hidden}
+#scannerRoot video,#scannerRoot canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.scanner-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:120px;border:4px solid #ff6b35;border-radius:12px;box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2}
+.scanner-line{position:absolute;left:0;right:0;height:3px;background:#ff6b35;animation:scan 2s infinite ease-in-out;z-index:2}
+@keyframes scan{0%,100%{top:10%}50%{top:90%}}
+.scan-status{position:absolute;top:10px;left:10px;background:rgba(255,107,53,.9);color:#fff;padding:5px 10px;border-radius:5px;font-size:12px;z-index:3}
+.controls{margin:25px 0}
+.btn{background:#ff6b35;color:#fff;border:none;padding:15px 30px;font-size:1.1em;border-radius:50px;cursor:pointer;margin:10px;transition:all .3s ease;box-shadow:0 4px 15px rgba(255,107,53,.3)}
+.btn:hover{background:#f7931e;transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,.4)}
+.btn:disabled{background:#ccc;cursor:not-allowed;transform:none;box-shadow:none}
+.result{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:25px;border-radius:15px;margin:25px 0;box-shadow:0 8px 25px rgba(255,107,53,.3)}
+.result h3{margin-bottom:15px;font-size:1.3em}
+#resultText{font-size:2.5em;font-weight:700;color:#fff;word-break:break-all;text-shadow:2px 2px 4px rgba(0,0,0,.2)}
+.status{margin:20px 0;font-style:italic;color:#666;font-size:1.1em}
+.error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
+.footer{margin-top:30px;font-size:.9em;color:#999}
+@media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-frame{width:200px;height:100px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SC</div>
+      <h1>📷 Code 39 Scanner</h1>
+    </div>
+    <div class="scanner-container" id="scannerRoot">
+      <div class="scanner-frame"><div class="scanner-line"></div></div>
+      <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
+    </div>
+    <div class="controls">
+      <button id="startBtn" class="btn">▶️ Запустить камеру</button>
+      <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
+    </div>
+    <div class="status" id="status">Камера не активирована</div>
+    <div class="result">
+      <h3>Результат сканирования:</h3>
+      <div id="resultText">&nbsp;</div>
+    </div>
+    <div id="error" class="error" style="display:none"></div>
+    <div class="footer">
+      <p>Работает в браузере на мобильных устройствах</p>
+      <div id="pwa-indicator" style="margin-top:10px;font-size:.8em;color:#666;"></div>
+    </div>
+  </div>
 
-/* зона сканера */
-.scanner-container {position:relative; width:100%; height:300px; background:#000; border-radius:15px; overflow:hidden;}
-#scannerRoot video,
-#scannerRoot canvas {position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;}
-.scanner-frame {position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:250px; height:120px; border:4px solid #ff6b35; border-radius:12px; box-shadow:0 0 0 2000px rgba(0,0,0,0.3); pointer-events:none; z-index:2;}
-.scanner-line {position:absolute; left:0; right:0; height:3px; background:#ff6b35; animation:scan 2s infinite ease-in-out; z-index:2;}
-@keyframes scan {0%,100%{top:10%;} 50%{top:90%;}}
-.scan-status {position:absolute; top:10px; left:10px; background:rgba(255,107,53,0.9); color:white; padding:5px 10px; border-radius:5px; font-size:12px; z-index:3;}
+  <!-- ZXing-CPP (WASM) для высокого качества -->
+  <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@2/dist/iife/reader/index.js"></script>
+  <!-- Quagga2 как финальный фолбэк -->
+  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
 
-.controls {margin:25px 0;}
-.btn {background:#ff6b35; color:white; border:none; padding:15px 30px; font-size:1.1em; border-radius:50px; cursor:pointer; margin:10px; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(255,107,53,0.3);}
-.btn:hover {background:#f7931e; transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,107,53,0.4);}
-.btn:disabled {background:#ccc; cursor:not-allowed; transform:none; box-shadow:none;}
-.result {background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%); color:white; padding:25px; border-radius:15px; margin:25px 0; box-shadow:0 8px 25px rgba(255,107,53,0.3);}
-.result h3 {margin-bottom:15px; font-size:1.3em;}
-#resultText {font-size:2.5em; font-weight:bold; color:white; word-break:break-all; text-shadow:2px 2px 4px rgba(0,0,0,0.2);}
-.status {margin:20px 0; font-style:italic; color:#666; font-size:1.1em;}
-.error {color:#ff6b6b; background:rgba(255,107,53,0.1); padding:15px; border-radius:10px; margin:15px 0; border:2px solid #ff6b6b;}
-.footer {margin-top:30px; font-size:0.9em; color:#999;}
-@media (max-width:480px){.container{padding:20px;} .header h1{font-size:1.8em;} .scanner-frame{width:200px;height:100px;} .btn{padding:12px 25px; font-size:1em;} #resultText{font-size:2em;}}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <div class="logo">SC</div>
-                <h1>📷 Code 39 Scanner</h1>
-            </div>
-            <div class="scanner-container" id="scannerRoot">
-                <div class="scanner-frame">
-                    <div class="scanner-line"></div>
-                </div>
-                <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
-            </div>
-            <div class="controls">
-                <button id="startBtn" class="btn">▶️ Запустить камеру</button>
-                <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
-            </div>
-            <div class="status" id="status">Камера не активирована</div>
-            <div class="result">
-                <h3>Результат сканирования:</h3>
-                <!-- начальное значение — пробел, чтобы визуально пусто -->
-                <div id="resultText">&nbsp;</div>
-            </div>
-            <div id="error" class="error" style="display:none"></div>
-            <div class="footer">
-                <p>Работает в браузере на мобильных устройствах</p>
-                <div id="pwa-indicator" style="margin-top: 10px; font-size: 0.8em; color: #666;"></div>
-            </div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
-        <script>
+  <script>
 class BarcodeScanner {
   constructor(){
-    this.startBtn=document.getElementById("startBtn");
-    this.stopBtn=document.getElementById("stopBtn");
-    this.resultText=document.getElementById("resultText");
-    this.status=document.getElementById("status");
-    this.error=document.getElementById("error");
-    this.scannerRoot=document.getElementById("scannerRoot");
-    this.frameEl=document.querySelector(".scanner-frame");
+    this.startBtn = document.getElementById("startBtn");
+    this.stopBtn = document.getElementById("stopBtn");
+    this.resultText = document.getElementById("resultText");
+    this.status = document.getElementById("status");
+    this.error = document.getElementById("error");
+    this.scannerRoot = document.getElementById("scannerRoot");
+    this.frameEl = document.querySelector(".scanner-frame");
 
-    this.isScanning=false;
-    this.lastScannedCode=null;
-    this.noDetectionTimer=null;
-    this.NO_DETECTION_MS=8000;
+    this.isScanning = false;
+    this.engine = null; // 'native' | 'zxing' | 'quagga'
+    this.videoEl = null;
+    this.mediaStream = null;
+    this.videoTrack = null;
+    this.flashBtn = null;
 
-    this.startScanner=this.startScanner.bind(this);
-    this.stopScanner=this.stopScanner.bind(this);
-    this.onBarcodeDetected=this.onBarcodeDetected.bind(this);
+    this.lastCode = null;
+    this.noDetectionTimer = null;
+    this.NO_DETECTION_MS = 8000;
+
+    this._rafId = 0;
+
+    this.startScanner = this.startScanner.bind(this);
+    this.stopScanner = this.stopScanner.bind(this);
+    this._onResize = this._onResize.bind(this);
   }
 
   initialize(){
-    this.startBtn.addEventListener("click",this.startScanner);
-    this.stopBtn.addEventListener("click",this.stopScanner);
+    this.startBtn.addEventListener("click", this.startScanner);
+    this.stopBtn.addEventListener("click", this.stopScanner);
+    window.addEventListener("resize", this._onResize);
   }
 
   async startScanner(){
     this.showError("");
-    this.status.textContent="Запрос доступа к камере...";
+    this.status.textContent = "Запрос доступа к камере...";
     try{
-      await this.initQuagga();
-      this.isScanning=true;
-      this.startBtn.disabled=true;
-      this.stopBtn.disabled=false;
-      this.status.textContent="Сканер готов! Наведите на штрих-код Code 39";
-      this.frameEl.style.display="block";
-    }catch(e){
-      this.handleError("Ошибка доступа к камере: "+(e?.message||e));
+      if (await this._canUseNative()) {
+        await this._startCamera();
+        this.engine = 'native';
+        this._scanNative();
+      } else if (window.ZXingWASM) {
+        await this._startCamera();
+        this.engine = 'zxing';
+        // прогрев WASM
+        await ZXingWASM.readBarcodes(new ImageData(1,1), { formats: ["Code39"] });
+        this._scanZXing();
+      } else {
+        await this._startQuagga();
+        this.engine = 'quagga';
+      }
+
+      this.isScanning = true;
+      this.startBtn.disabled = true;
+      this.stopBtn.disabled = false;
+      this.status.textContent = "Сканер готов! Наведите на штрих-код Code 39";
+      this.frameEl.style.display = "block";
+      this._resetNoDetectionTimer();
+    } catch(e){
+      this._handleError("Ошибка запуска: " + (e?.message || e));
     }
   }
 
-  initQuagga(){
+  async _canUseNative(){
+    if (!('BarcodeDetector' in window)) return false;
+    try{
+      const formats = await BarcodeDetector.getSupportedFormats();
+      return formats.includes('code_39');
+    }catch{ return false; }
+  }
+
+  async _startCamera(){
+    if (!this.videoEl){
+      this.videoEl = document.createElement("video");
+      this.videoEl.setAttribute("playsinline","true");
+      this.videoEl.autoplay = true;
+      this.videoEl.muted = true;
+      this.scannerRoot.appendChild(this.videoEl);
+    }
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1920 }, height: { ideal: 1080 },
+        advanced: [{ focusMode: "continuous" }]
+      },
+      audio: false
+    });
+    this.videoEl.srcObject = this.mediaStream;
+    this.videoTrack = this.mediaStream.getVideoTracks()[0] || null;
+    await this._applyZoomFocus();
+    this._setupTorchUI();
+  }
+
+  // ======= Native (BarcodeDetector) =======
+  async _scanNative(){
+    const detector = new BarcodeDetector({ formats: ['code_39'] });
+    const loop = async ()=>{
+      if (!this.isScanning || this.engine!=='native') return;
+      try{
+        const res = await detector.detect(this.videoEl);
+        if (res && res.length) this._onCode(res[0].rawValue);
+      }catch{}
+      this._resetNoDetectionTimer();
+      this._rafId = requestAnimationFrame(loop);
+    };
+    this._rafId = requestAnimationFrame(loop);
+  }
+
+  // ======= ZXing-WASM =======
+  async _scanZXing(){
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const opts = {
+      formats: ["Code39"],
+      tryHarder: true,
+      tryRotate: true,
+      tryInvert: true,
+      tryDownscale: true,
+      minLineCount: 2,
+      maxNumberOfSymbols: 1,
+      tryCode39ExtendedMode: true,
+      binarizer: "LocalAverage"
+    };
+
+    const loop = async ()=>{
+      if (!this.isScanning || this.engine!=='zxing') return;
+      try{
+        // вырезаем ROI (как рамка)
+        const { w, h } = this._drawROIToCanvas(this.videoEl, canvas, ctx);
+        const imageData = ctx.getImageData(0,0,w,h);
+        const results = await ZXingWASM.readBarcodes(imageData, opts);
+        if (results && results.length) this._onCode(results[0].text);
+      }catch{}
+      this._resetNoDetectionTimer();
+      this._rafId = requestAnimationFrame(loop);
+    };
+    this._rafId = requestAnimationFrame(loop);
+  }
+
+  _drawROIToCanvas(video, canvas, ctx){
+    const vr = video.getBoundingClientRect();
+    const fr = this.frameEl.getBoundingClientRect();
+
+    // переводим DOM-координаты ROI в координаты видеопотока
+    const sx = Math.max(0, (fr.left - vr.left) / vr.width  * video.videoWidth);
+    const sy = Math.max(0, (fr.top  - vr.top ) / vr.height * video.videoHeight);
+    const sw = Math.min(video.videoWidth  - sx, fr.width  / vr.width  * video.videoWidth);
+    const sh = Math.min(video.videoHeight - sy, fr.height / vr.height * video.videoHeight);
+
+    const w = Math.max(320, Math.floor(sw));
+    const h = Math.max(160, Math.floor(sh));
+
+    canvas.width = w; canvas.height = h;
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
+    return { w, h };
+  }
+
+  // ======= Quagga2 (fallback) =======
+  async _startQuagga(){
     return new Promise((resolve,reject)=>{
-      try{Quagga.offDetected && Quagga.offDetected(this.onBarcodeDetected);}catch(_){}
+      try{ Quagga.offDetected?.(()=>{}); }catch(_){}
+      const area = this._computeROI();
+      const constraints = {
+        facingMode: { ideal: "environment" },
+        width:{ideal:1920}, height:{ideal:1080},
+        advanced:[{ focusMode: "continuous" }]
+      };
       Quagga.init({
-        inputStream:{ name:"Live", type:"LiveStream", target:this.scannerRoot,
-          constraints:{ facingMode:"environment", aspectRatio:{ ideal:16/9 } } },
-        decoder:{ readers:["code_39_reader"] },
+        inputStream:{ name:"Live", type:"LiveStream", target:this.scannerRoot, constraints, area },
+        locator:{ patchSize:"x-small", halfSample:false },
+        decoder:{ readers:["code_39_reader"], multiple:false },
         locate:true,
-        numOfWorkers:navigator.hardwareConcurrency||4
+        numOfWorkers: navigator.hardwareConcurrency || 4,
+        frequency: 25
       }, (err)=>{
-        if(err) return reject(err);
-        Quagga.onDetected(this.onBarcodeDetected);
+        if (err) return reject(err);
+        Quagga.onDetected((res)=>{
+          const code = res?.codeResult?.code;
+          if (code) this._onCode(code);
+          this._resetNoDetectionTimer();
+        });
         Quagga.start();
-        setTimeout(()=>{
-          const v=this.scannerRoot.querySelector("video");
-          if(v){ v.setAttribute("playsinline",""); v.muted=true; v.autoplay=true; }
-        },0);
-        this.resetNoDetectionTimer();
+
+        setTimeout(async ()=>{
+          const v = this.scannerRoot.querySelector("video");
+          if (v){ v.setAttribute("playsinline",""); v.muted = true; v.autoplay = true; }
+          this.videoEl = v;
+          this.mediaStream = v?.srcObject || null;
+          this.videoTrack = this.mediaStream?.getVideoTracks?.()[0] || null;
+          await this._applyZoomFocus();
+          this._setupTorchUI();
+        }, 300);
+
+        this._resetNoDetectionTimer();
         resolve();
       });
     });
   }
 
-  resetNoDetectionTimer(){
-    clearTimeout(this.noDetectionTimer);
-    this.noDetectionTimer=setTimeout(()=>{
-      this.handleError("Не удаётся распознать штрих-код. Проверьте освещение.");
-    }, this.NO_DETECTION_MS);
+  _computeROI(){
+    const r = this.scannerRoot.getBoundingClientRect();
+    const f = this.frameEl.getBoundingClientRect();
+    const top = Math.max(0, (f.top - r.top)/r.height*100);
+    const left= Math.max(0, (f.left- r.left)/r.width *100);
+    const right = Math.max(0, 100 - (f.right - r.left)/r.width *100);
+    const bottom= Math.max(0, 100 - (f.bottom- r.top )/r.height*100);
+    return { top:`${top}%`, right:`${right}%`, left:`${left}%`, bottom:`${bottom}%` };
   }
 
-  onBarcodeDetected(res){
-    const code=res?.codeResult?.code;
-    if(!code) return;
-    this.resetNoDetectionTimer();
+  async _applyZoomFocus(){
+    if (!this.videoTrack?.getCapabilities) return;
+    const caps = this.videoTrack.getCapabilities();
+    const adv = [];
+    if (caps.focusMode?.includes?.("continuous")) adv.push({ focusMode: "continuous" });
+    if (caps.zoom){
+      const min = caps.zoom.min ?? 1, max = caps.zoom.max ?? 1;
+      const mid = Math.min(max, min + (max-min)*0.5);
+      adv.push({ zoom: mid });
+    }
+    try{ if (adv.length) await this.videoTrack.applyConstraints({ advanced: adv }); }catch(_){}
+  }
 
-    // Обновляем только если код новый
-    if(this.lastScannedCode !== code){
-      this.lastScannedCode = code;
-      this.resultText.textContent = code;
-      this.status.textContent = `Штрих-код распознан: ${code}`;
-      this.flashFrame(true);
-      // вернуть цвет рамки спустя короткое время
-      setTimeout(()=> this.flashFrame(false), 900);
+  _setupTorchUI(){
+    if (!this.videoTrack?.getCapabilities) return;
+    const caps = this.videoTrack.getCapabilities();
+    if (!caps.torch) return;
+    if (!this.flashBtn){
+      this.flashBtn = document.createElement("button");
+      this.flashBtn.className = "btn";
+      this.flashBtn.textContent = "🔦 Фонарик";
+      this.stopBtn.insertAdjacentElement("beforebegin", this.flashBtn);
+      let on = false;
+      this.flashBtn.addEventListener("click", async ()=>{
+        on = !on;
+        try{
+          await this.videoTrack.applyConstraints({ advanced: [{ torch: on }] });
+          this.flashBtn.textContent = on ? "🔦 Фонарик ВКЛ" : "🔦 Фонарик";
+        }catch(_){ on = !on; }
+      });
     }
   }
 
-  flashFrame(success){
-    if(!this.frameEl) return;
-    this.frameEl.style.borderColor = success ? "lime" : "#ff6b35";
+  _onCode(code){
+    if (this.lastCode === code) return;
+    this.lastCode = code;
+    this.resultText.textContent = code;
+    this.status.textContent = `Штрих-код распознан: ${code}`;
+    this._flashFrame(true);
+    this._beep();
+    setTimeout(()=> this._flashFrame(false), 900);
+  }
+
+  _onResize(){
+    if (!this.isScanning) return;
+    if (this.engine === 'quagga'){
+      Quagga.stop?.(); this._startQuagga().catch(()=>{});
+    }
+    // native/zxing — ROI читаем через DOM при каждом кадре, переинициализация не нужна
   }
 
   async stopScanner(){
-    this.isScanning=false;
+    this.isScanning = false;
+    this.startBtn.disabled = false;
+    this.stopBtn.disabled = true;
+    this.status.textContent = "Камера остановлена";
+    this.showError(""); this._flashFrame(false);
+    cancelAnimationFrame(this._rafId);
     clearTimeout(this.noDetectionTimer);
-    try{Quagga.offDetected && Quagga.offDetected(this.onBarcodeDetected);}catch(_){}
-    try{await Quagga.stop();}catch(_){}
-    // результат не очищаем — остаётся последний
-    this.startBtn.disabled=false;
-    this.stopBtn.disabled=true;
-    this.status.textContent="Камера остановлена";
-    this.showError("");
-    this.flashFrame(false);
+
+    try{ Quagga.offDetected?.(()=>{}); Quagga.stop?.(); }catch(_){}
+    try{ this.mediaStream?.getTracks?.().forEach(t=>t.stop()); }catch(_){}
+    this.engine = null;
   }
 
-  handleError(msg){ this.error.textContent=msg; this.error.style.display="block"; this.status.textContent="Ошибка"; }
-  showError(msg){ this.error.style.display = msg ? "block":"none"; this.error.textContent = msg; }
+  _resetNoDetectionTimer(){
+    clearTimeout(this.noDetectionTimer);
+    this.noDetectionTimer = setTimeout(()=>{
+      this._handleError("Не удаётся распознать штрих-код. Проверьте освещение/резкость.");
+    }, this.NO_DETECTION_MS);
+  }
+
+  _flashFrame(ok){ if (this.frameEl) this.frameEl.style.borderColor = ok ? "lime" : "#ff6b35"; }
+  _handleError(msg){ this.error.textContent = msg; this.error.style.display="block"; this.status.textContent="Ошибка"; }
+  showError(msg){ this.error.style.display = msg ? "block" : "none"; this.error.textContent = msg; }
+
+  // Звук успешного скана
+  _beep(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type="square"; o.frequency.setValueAtTime(880, ctx.currentTime);
+      g.gain.setValueAtTime(0.001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.15);
+      o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.16);
+      setTimeout(()=>ctx.close?.(), 250);
+    }catch(_){}
+  }
 }
 
 document.addEventListener("DOMContentLoaded", ()=> new BarcodeScanner().initialize());
 
-// Регистрация Service Worker для PWA
+// PWA-индикатор
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('Service Worker зарегистрирован:', registration);
-        updatePWAIndicator('✅ PWA активен - работает офлайн');
-      })
-      .catch(error => {
-        console.log('Ошибка регистрации Service Worker:', error);
-        updatePWAIndicator('⚠️ PWA не активен');
-      });
+      .then(() => updatePWAIndicator('✅ PWA активен - работает офлайн'))
+      .catch(() => updatePWAIndicator('⚠️ PWA не активен'));
   });
 }
-
-// Обновление индикатора PWA
-function updatePWAIndicator(message) {
-  const indicator = document.getElementById('pwa-indicator');
-  if (indicator) {
-    indicator.innerHTML = message;
-  }
-}
-
-// Проверка PWA статуса
-function checkPWAStatus() {
+function updatePWAIndicator(m){ const el = document.getElementById('pwa-indicator'); if (el) el.innerHTML = m; }
+function checkPWAStatus(){
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistration().then(registration => {
-      if (registration && registration.active) {
-        updatePWAIndicator('✅ PWA активен - работает офлайн');
-      } else {
-        updatePWAIndicator('⏳ PWA загружается...');
-      }
+    navigator.serviceWorker.getRegistration().then(reg => {
+      updatePWAIndicator(reg?.active ? '✅ PWA активен - работает офлайн' : '⏳ PWA загружается...');
     });
-  } else {
-    updatePWAIndicator('❌ PWA не поддерживается');
-  }
+  } else updatePWAIndicator('❌ PWA не поддерживается');
 }
-
-// Проверяем статус при загрузке
 document.addEventListener('DOMContentLoaded', checkPWAStatus);
-        </script>
-    </body>
+  </script>
+</body>
 </html>
