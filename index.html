@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Code 39 Scanner</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .header h1 {
+        font-size: 2.2em;
+        margin-bottom: 10px;
+        color: #ff6b35;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        color: #666;
+      }
+
+      .scanner-container {
+        position: relative;
+        width: 100%;
+        margin: 30px 0;
+        background: #f8f8f8;
+        border-radius: 15px;
+        padding: 20px;
+        overflow: hidden; /* важно, чтобы видео Quagga не вылезало */
+      }
+
+      #video {
+        width: 100%;
+        height: 300px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        object-fit: cover;
+        background: #000;
+      }
+
+      .scanner-frame {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 120px;
+        border: 4px solid #ff6b35;
+        border-radius: 12px;
+        box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.3);
+        pointer-events: none;
+      }
+
+      .scanner-line {
+        position: absolute;
+        width: 100%;
+        height: 3px;
+        background: #ff6b35;
+        animation: scan 2s infinite ease-in-out;
+      }
+
+      @keyframes scan {
+        0%,
+        100% {
+          top: 10%;
+        }
+        50% {
+          top: 90%;
+        }
+      }
+
+      .controls {
+        margin: 25px 0;
+      }
+
+      .btn {
+        background: #ff6b35;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1em;
+        border-radius: 50px;
+        cursor: pointer;
+        margin: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn:hover {
+        background: #f7931e;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+      }
+
+      .btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .result {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 25px 0;
+        box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+      }
+
+      .result h3 {
+        margin-bottom: 15px;
+        font-size: 1.3em;
+      }
+
+      #resultText {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: white;
+        word-break: break-all;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .status {
+        margin: 20px 0;
+        font-style: italic;
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      .error {
+        color: #ff6b6b;
+        background: rgba(255, 107, 53, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border: 2px solid #ff6b6b;
+      }
+
+      .examples {
+        background: #f8f8f8;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        border-left: 5px solid #ff6b35;
+      }
+
+      .examples h4 {
+        color: #ff6b35;
+        margin-bottom: 15px;
+      }
+
+      .example-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #999;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        #video {
+          height: 250px;
+        }
+
+        .scanner-frame {
+          width: 200px;
+          height: 100px;
+        }
+
+        .btn {
+          padding: 12px 25px;
+          font-size: 1em;
+        }
+
+        #resultText {
+          font-size: 2em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">SC</div>
+        <h1>📷 Code 39 Scanner</h1>
+        <p>Простой сканер штрих-кодов - навел и получил результат</p>
+      </div>
+      <div class="scanner-container" id="scannerRoot">
+        <!-- Важно: этот <video> оставляем для дизайна, но сам поток теперь рендерит Quagga внутрь контейнера -->
+        <video id="video" playsinline autoplay muted></video>
+        <div class="scanner-frame">
+          <div class="scanner-line"></div>
+        </div>
+        <div
+          id="scannerStatus"
+          style="
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 107, 53, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: none;
+          "
+        >
+          🔍 Сканирование...
+        </div>
+      </div>
+      <div
+        class="instructions"
+        style="
+          background: #e8f4fd;
+          padding: 15px;
+          border-radius: 10px;
+          margin: 15px 0;
+          border-left: 4px solid #2196f3;
+        "
+      >
+        <h4 style="color: #1976d2; margin-bottom: 10px">
+          📋 Инструкция по использованию:
+        </h4>
+        <ol style="text-align: left; color: #333">
+          <li>Нажмите "Запустить камеру"</li>
+          <li>Разрешите доступ к камере в браузере</li>
+          <li>Наведите камеру на штрих-код Code 39</li>
+          <li>Держите камеру на расстоянии 10-30 см</li>
+          <li>Убедитесь, что штрих-код хорошо освещен</li>
+        </ol>
+      </div>
+      <div class="controls">
+        <button id="startBtn" class="btn">▶️ Запустить камеру</button>
+        <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
+        <button id="testBtn" class="btn" style="background: #28a745">🧪 Тест</button>
+        <button id="manualTestBtn" class="btn" style="background: #9c27b0">
+          🔍 Ручной тест
+        </button>
+        <button id="testScannerBtn" class="btn" style="background: #ff9800">
+          🔬 Тест сканера
+        </button>
+      </div>
+      <div class="status" id="status">Камера не активирована</div>
+      <div class="result">
+        <h3>Результат сканирования:</h3>
+        <div id="resultText">—</div>
+      </div>
+      <div class="examples">
+        <h4>📋 Примеры поддерживаемых форматов:</h4>
+        <div class="example-item">
+          <span>3 цифры:</span>
+          <span> <strong>123</strong> </span>
+        </div>
+        <div class="example-item">
+          <span>4 цифры:</span>
+          <span> <strong>4567</strong> </span>
+        </div>
+      </div>
+      <div id="error" class="error" style="display: none"></div>
+      <div class="footer">
+        <p>Работает в браузере на мобильных устройствах</p>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
+    <script>
+      // === УТИЛИТЫ ===
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      // Простая функция тестирования (оставлена без изменений визуально)
+      function testSimple() {
+        const resultText = document.getElementById("resultText");
+        const status = document.getElementById("status");
+        if (resultText && status) {
+          const testCodes = ["264.45.16.15", "123", "4567", "789", "1234"];
+          const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+          resultText.textContent = randomCode;
+          status.textContent = `Тест: ${randomCode}`;
+          resultText.style.transform = "scale(1.1)";
+          setTimeout(() => {
+            resultText.style.transform = "scale(1)";
+          }, 200);
+        }
+      }
+
+      // Функция ручного теста (оставлена)
+      function manualTest() {
+        const resultText = document.getElementById("resultText");
+        const status = document.getElementById("status");
+        if (resultText && status) {
+          status.textContent = "Имитация сканирования...";
+          setTimeout(() => {
+            const testCodes = ["264.45.16.15", "123", "4567", "789", "1234"];
+            const randomCode =
+              testCodes[Math.floor(Math.random() * testCodes.length)];
+            resultText.textContent = randomCode;
+            status.textContent = `Штрих-код распознан: ${randomCode}`;
+            resultText.style.transform = "scale(1.1)";
+            setTimeout(() => {
+              resultText.style.transform = "scale(1)";
+            }, 200);
+          }, 2000);
+        }
+      }
+
+      class BarcodeScanner {
+        constructor() {
+          this.video = document.getElementById("video");
+          this.startBtn = document.getElementById("startBtn");
+          this.stopBtn = document.getElementById("stopBtn");
+          this.testBtn = document.getElementById("testBtn");
+          this.manualTestBtn = document.getElementById("manualTestBtn");
+          this.testScannerBtn = document.getElementById("testScannerBtn");
+          this.resultText = document.getElementById("resultText");
+          this.status = document.getElementById("status");
+          this.error = document.getElementById("error");
+          this.scannerStatus = document.getElementById("scannerStatus");
+          this.scannerRoot = document.getElementById("scannerRoot");
+
+          this.isScanning = false;
+          this.lastScannedCode = null;
+          this.frameCount = 0;
+          this.noDetectionTimer = null;
+          this.NO_DETECTION_MS = 8000; // показываем ошибку, если долго нет результата
+
+          // Привязка контекста
+          this.startScanner = this.startScanner.bind(this);
+          this.stopScanner = this.stopScanner.bind(this);
+          this.testScanner = this.testScanner.bind(this);
+          this.testScannerFunctionality = this.testScannerFunctionality.bind(this);
+          this.onBarcodeDetected = this.onBarcodeDetected.bind(this);
+          this.handleVisibility = this.handleVisibility.bind(this);
+        }
+
+        initialize() {
+          this.initEventListeners();
+          document.addEventListener("visibilitychange", this.handleVisibility);
+        }
+
+        initEventListeners() {
+          this.startBtn?.addEventListener("click", this.startScanner);
+          this.stopBtn?.addEventListener("click", this.stopScanner);
+          this.testBtn?.addEventListener("click", testSimple);
+          this.manualTestBtn?.addEventListener("click", manualTest);
+          this.testScannerBtn?.addEventListener(
+            "click",
+            this.testScannerFunctionality
+          );
+        }
+
+        async startScanner() {
+          try {
+            this.showError("");
+            this.status.textContent = "Запрос доступа к камере...";
+
+            // ВАЖНО: не открываем камеру вручную. Пусть Quagga сам управляет потоком.
+            // Это избегает ошибки NotReadableError/двойного захвата камеры.
+
+            await this.startBarcodeDetection();
+            this.isScanning = true;
+            this.startBtn.disabled = true;
+            this.stopBtn.disabled = false;
+            this.status.textContent = "Сканер готов! Наведите на штрих-код Code 39";
+          } catch (error) {
+            this.processCameraError(error);
+          }
+        }
+
+        startBarcodeDetection() {
+          return new Promise((resolve, reject) => {
+            // На всякий случай снимаем старые обработчики, если уже инициализировали ранее
+            try {
+              Quagga.offDetected && Quagga.offDetected(this.onBarcodeDetected);
+            } catch (_) {}
+
+            const constraints = {
+              width: { min: 640, ideal: 1280, max: 1920 },
+              height: { min: 480, ideal: 720, max: 1080 },
+              facingMode: "environment",
+              aspectRatio: { ideal: 16 / 9 },
+            };
+
+            Quagga.init(
+              {
+                inputStream: {
+                  name: "Live",
+                  type: "LiveStream",
+                  target: this.scannerRoot, // рендерим видео внутрь контейнера (дизайн сохранён)
+                  constraints,
+                },
+                decoder: {
+                  readers: ["code_39_reader"],
+                },
+                locate: true,
+                numOfWorkers: navigator.hardwareConcurrency || 4,
+                locator: {
+                  patchSize: "medium",
+                  halfSample: true,
+                },
+                frequency: 10,
+              },
+              async (err) => {
+                if (err) {
+                  reject(err);
+                  return;
+                }
+
+                // Убеждаемся, что видео проигрывается (особенно для iOS необходимо muted+playsinline)
+                try {
+                  const videoEl = this.scannerRoot.querySelector("video");
+                  if (videoEl) {
+                    videoEl.setAttribute("playsinline", "");
+                    videoEl.setAttribute("muted", "");
+                    videoEl.muted = true;
+                    await videoEl.play().catch(() => {});
+                  }
+                } catch (_) {}
+
+                Quagga.onDetected(this.onBarcodeDetected);
+                Quagga.onProcessed(() => {
+                  this.frameCount++;
+                  if (this.scannerStatus && this.frameCount % 15 === 0) {
+                    this.scannerStatus.style.display = "block";
+                    setTimeout(() => {
+                      if (this.scannerStatus) this.scannerStatus.style.display = "none";
+                    }, 300);
+                  }
+                });
+
+                Quagga.start();
+                this.resetNoDetectionTimer();
+                resolve();
+              }
+            );
+          });
+        }
+
+        resetNoDetectionTimer() {
+          clearTimeout(this.noDetectionTimer);
+          this.noDetectionTimer = setTimeout(() => {
+            // Если долго нет распознавания — показываем понятную ошибку, но не останавливаем сканер
+            this.handleError(
+              "Не удаётся распознать штрих‑код. Проверьте освещение и наведите рамку точно на код."
+            );
+          }, this.NO_DETECTION_MS);
+        }
+
+        onBarcodeDetected(result) {
+          // result может быть строкой (при тестах) или объектом от Quagga
+          const code = typeof result === "string" ? result : result?.codeResult?.code;
+          if (!code) return;
+
+          // Сбрасываем таймер отсутсвия детекции
+          this.resetNoDetectionTimer();
+
+          if (this.lastScannedCode === code) return; // защита от повторов
+          this.lastScannedCode = code;
+
+          if (this.isValidCode39(code)) {
+            this.resultText.textContent = code;
+            this.status.textContent = `Штрих-код распознан: ${code}`;
+            this.flashFrame(true);
+            this.playBeepSound();
+
+            // Автопродолжение
+            setTimeout(() => {
+              if (this.isScanning) {
+                this.resultText.textContent = "—";
+                this.status.textContent = "Продолжаем сканирование...";
+                this.lastScannedCode = null;
+              }
+            }, 5000);
+          } else {
+            // Некорректный для наших правил код — сообщаем об ошибке
+            this.flashFrame(false);
+            this.handleError(
+              `Код найден, но не подходит под формат Code 39/правила: ${code}`
+            );
+          }
+        }
+
+        playBeepSound() {
+          try {
+            const audioContext = new (window.AudioContext ||
+              window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+          } catch (_) {
+            // игнорируем, если WebAudio недоступен
+          }
+        }
+
+        flashFrame(success) {
+          const frame = document.querySelector(".scanner-frame");
+          if (!frame) return;
+          const original = frame.style.borderColor || "#FF6B35";
+          frame.style.borderColor = success ? "lime" : "#FF6B6B";
+          setTimeout(() => (frame.style.borderColor = original), 1200);
+        }
+
+        isValidCode39(code) {
+          // Разрешаем: 3–4 цифры, формат с точками (например 264.45.16.15),
+          // а также стандартный набор символов Code39
+          if (/^\d{3,4}$/.test(code)) return true;
+          if (/^\d+\.\d+\.\d+\.\d+$/.test(code)) return true;
+          return /^[A-Z0-9\-\.\$\/\+\%\s]+$/.test(code);
+        }
+
+        async stopScanner() {
+          this.isScanning = false;
+          this.lastScannedCode = null;
+          this.frameCount = 0;
+          clearTimeout(this.noDetectionTimer);
+
+          this.scannerStatus && (this.scannerStatus.style.display = "none");
+
+          try {
+            Quagga.offDetected && Quagga.offDetected(this.onBarcodeDetected);
+          } catch (_) {}
+
+          try {
+            await Quagga.stop();
+          } catch (_) {}
+
+          // Чистим возможные видео-элементы внутри контейнера (оставляем наш пустой #video для дизайна)
+          try {
+            const nodes = Array.from(this.scannerRoot.querySelectorAll("canvas, video"));
+            nodes.forEach((n) => {
+              if (n.id !== "video") n.remove();
+            });
+          } catch (_) {}
+
+          // Обновляем UI
+          this.resultText.textContent = "—";
+          this.startBtn.disabled = false;
+          this.stopBtn.disabled = true;
+          this.status.textContent = "Камера остановлена";
+          this.showError("");
+        }
+
+        handleError(message) {
+          this.error.textContent = message;
+          this.error.style.display = "block";
+          this.status.textContent = "Ошибка";
+        }
+
+        showError(message) {
+          if (message) {
+            this.error.textContent = message;
+            this.error.style.display = "block";
+          } else {
+            this.error.style.display = "none";
+          }
+        }
+
+        processCameraError(error) {
+          console.error("Camera error:", error);
+          const name = error?.name || "UnknownError";
+          if (name === "NotAllowedError") {
+            this.handleError(
+              "Доступ к камере запрещён. Разрешите доступ в настройках браузера и попробуйте снова."
+            );
+          } else if (name === "NotFoundError") {
+            this.handleError(
+              "Камера не найдена. Убедитесь, что у устройства есть камера."
+            );
+          } else if (name === "NotReadableError") {
+            this.handleError(
+              "Камера уже используется другим приложением. Закройте другие приложения, использующие камеру."
+            );
+          } else {
+            this.handleError("Ошибка доступа к камере: " + (error.message || name));
+          }
+        }
+
+        testScanner() {
+          const testCodes = [
+            "264.45.16.15",
+            "123",
+            "4567",
+            "789",
+            "1234",
+          ];
+          const randomCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+          this.lastScannedCode = null; // разрешаем повтор
+          this.onBarcodeDetected(randomCode);
+          this.status.textContent = `Тест: ${randomCode}`;
+        }
+
+        testScannerFunctionality() {
+          if (!this.isScanning) {
+            this.status.textContent = "Сначала запустите камеру!";
+            return;
+          }
+          const testCode = "264.45.16.15";
+          this.onBarcodeDetected(testCode);
+          this.status.textContent = `Тест сканера: ${testCode}`;
+        }
+
+        handleVisibility() {
+          if (document.hidden && this.isScanning) {
+            // Скрыли вкладку — ставим на паузу, чтобы не было чёрного экрана/ошибок у Safari
+            Quagga.pause && Quagga.pause();
+          } else if (!document.hidden && this.isScanning) {
+            Quagga.start && Quagga.start();
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const scanner = new BarcodeScanner();
+        scanner.initialize();
+
+        // Проверка поддержки API
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          scanner.handleError("Ваш браузер не поддерживает доступ к камере");
+        }
+      });
+    </script>
+  </body>
+</html>
