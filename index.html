@@ -19,9 +19,12 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
 .header{margin-bottom:30px}
 .logo{width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;box-shadow:0 5px 15px rgba(255,107,53,.3)}
 .header h1{font-size:2.2em;margin-bottom:10px;color:#ff6b35}
-.scanner-container{position:relative;width:100%;height:300px;background:#000;border-radius:15px;overflow:hidden}
+.scanner-container{position:relative;width:100%;height:320px;background:#000;border-radius:15px;overflow:hidden}
 #scannerRoot video,#scannerRoot canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-.scanner-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:120px;border:4px solid #ff6b35;border-radius:12px;box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2}
+.scanner-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+/* рамку увеличил */
+width:min(88%,380px);height:150px;border:4px solid #ff6b35;border-radius:12px;
+box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2}
 .scanner-line{position:absolute;left:0;right:0;height:3px;background:#ff6b35;animation:scan 2s infinite ease-in-out;z-index:2}
 @keyframes scan{0%,100%{top:10%}50%{top:90%}}
 .scan-status{position:absolute;top:10px;left:10px;background:rgba(255,107,53,.9);color:#fff;padding:5px 10px;border-radius:5px;font-size:12px;z-index:3}
@@ -35,7 +38,7 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
 .status{margin:20px 0;font-style:italic;color:#666;font-size:1.1em}
 .error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
 .footer{margin-top:30px;font-size:.9em;color:#999}
-@media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-frame{width:200px;height:100px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}}
+@media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-frame{width:92%;height:130px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}}
   </style>
 </head>
 <body>
@@ -44,27 +47,33 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
       <div class="logo">SC</div>
       <h1>📷 Code 39 Scanner</h1>
     </div>
+
     <div class="scanner-container" id="scannerRoot">
       <div class="scanner-frame"><div class="scanner-line"></div></div>
       <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
     </div>
+
     <div class="controls">
       <button id="startBtn" class="btn">▶️ Запустить камеру</button>
       <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
     </div>
+
     <div class="status" id="status">Камера не активирована</div>
+
     <div class="result">
       <h3>Результат сканирования:</h3>
       <div id="resultText">&nbsp;</div>
     </div>
+
     <div id="error" class="error" style="display:none"></div>
+
     <div class="footer">
       <p>Работает в браузере на мобильных устройствах</p>
       <div id="pwa-indicator" style="margin-top:10px;font-size:.8em;color:#666;"></div>
     </div>
   </div>
 
-  <!-- ZXing-CPP (WASM) для высокого качества -->
+  <!-- ZXing-CPP (WASM) -->
   <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@2/dist/iife/reader/index.js"></script>
   <!-- Quagga2 как финальный фолбэк -->
   <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
@@ -87,7 +96,16 @@ class BarcodeScanner {
     this.videoTrack = null;
     this.flashBtn = null;
 
+    // анти-дребезг
     this.lastCode = null;
+    this.candidate = null;
+    this.candidateCount = 0;
+    this.candidateFirstAt = 0;
+    this.lockedUntil = 0;
+    this.EMIT_STABLE_FRAMES = 4;     // сколько подряд кадров должен повториться код
+    this.EMIT_STABLE_SAME_MS = 400;  // и минимум это время
+    this.EMIT_COOLDOWN_MS = 1200;    // после выдачи результата — пауза
+
     this.noDetectionTimer = null;
     this.NO_DETECTION_MS = 8000;
 
@@ -105,7 +123,7 @@ class BarcodeScanner {
   }
 
   async startScanner(){
-    this.showError("");
+    this._showError("");
     this.status.textContent = "Запрос доступа к камере...";
     try{
       if (await this._canUseNative()) {
@@ -115,8 +133,7 @@ class BarcodeScanner {
       } else if (window.ZXingWASM) {
         await this._startCamera();
         this.engine = 'zxing';
-        // прогрев WASM
-        await ZXingWASM.readBarcodes(new ImageData(1,1), { formats: ["Code39"] });
+        await ZXingWASM.readBarcodes(new ImageData(1,1), { formats: ["Code39"] }); // прогрев
         this._scanZXing();
       } else {
         await this._startQuagga();
@@ -171,7 +188,7 @@ class BarcodeScanner {
       if (!this.isScanning || this.engine!=='native') return;
       try{
         const res = await detector.detect(this.videoEl);
-        if (res && res.length) this._onCode(res[0].rawValue);
+        if (res && res.length) this._onCandidate(res[0].rawValue);
       }catch{}
       this._resetNoDetectionTimer();
       this._rafId = requestAnimationFrame(loop);
@@ -193,17 +210,18 @@ class BarcodeScanner {
       minLineCount: 2,
       maxNumberOfSymbols: 1,
       tryCode39ExtendedMode: true,
+      // если все ваши коды с контрольной суммой — раскомментируйте:
+      // assumeCode39CheckDigit: true,
       binarizer: "LocalAverage"
     };
 
     const loop = async ()=>{
       if (!this.isScanning || this.engine!=='zxing') return;
       try{
-        // вырезаем ROI (как рамка)
         const { w, h } = this._drawROIToCanvas(this.videoEl, canvas, ctx);
         const imageData = ctx.getImageData(0,0,w,h);
         const results = await ZXingWASM.readBarcodes(imageData, opts);
-        if (results && results.length) this._onCode(results[0].text);
+        if (results && results.length) this._onCandidate(results[0].text);
       }catch{}
       this._resetNoDetectionTimer();
       this._rafId = requestAnimationFrame(loop);
@@ -214,16 +232,12 @@ class BarcodeScanner {
   _drawROIToCanvas(video, canvas, ctx){
     const vr = video.getBoundingClientRect();
     const fr = this.frameEl.getBoundingClientRect();
-
-    // переводим DOM-координаты ROI в координаты видеопотока
     const sx = Math.max(0, (fr.left - vr.left) / vr.width  * video.videoWidth);
     const sy = Math.max(0, (fr.top  - vr.top ) / vr.height * video.videoHeight);
     const sw = Math.min(video.videoWidth  - sx, fr.width  / vr.width  * video.videoWidth);
     const sh = Math.min(video.videoHeight - sy, fr.height / vr.height * video.videoHeight);
-
-    const w = Math.max(320, Math.floor(sw));
+    const w = Math.max(360, Math.floor(sw)); // под рамку увеличил минимальный буфер
     const h = Math.max(160, Math.floor(sh));
-
     canvas.width = w; canvas.height = h;
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
     return { w, h };
@@ -250,7 +264,7 @@ class BarcodeScanner {
         if (err) return reject(err);
         Quagga.onDetected((res)=>{
           const code = res?.codeResult?.code;
-          if (code) this._onCode(code);
+          if (code) this._onCandidate(code);
           this._resetNoDetectionTimer();
         });
         Quagga.start();
@@ -279,6 +293,46 @@ class BarcodeScanner {
     const right = Math.max(0, 100 - (f.right - r.left)/r.width *100);
     const bottom= Math.max(0, 100 - (f.bottom- r.top )/r.height*100);
     return { top:`${top}%`, right:`${right}%`, left:`${left}%`, bottom:`${bottom}%` };
+  }
+
+  // ---- СТАБИЛИЗАЦИЯ РЕЗУЛЬТАТА ----
+  _onCandidate(raw){
+    const now = performance.now();
+    if (now < this.lockedUntil) return;
+
+    // Code39 иногда возвращает *старт/стоп* — уберём по краям
+    let code = (raw || "").trim().replace(/^\*|\*$/g, "");
+
+    if (!code) return;
+
+    if (this.candidate === code){
+      this.candidateCount++;
+    } else {
+      this.candidate = code;
+      this.candidateCount = 1;
+      this.candidateFirstAt = now;
+    }
+
+    const longEnough = (now - this.candidateFirstAt) >= this.EMIT_STABLE_SAME_MS;
+    if (this.candidateCount >= this.EMIT_STABLE_FRAMES && longEnough){
+      this._emitFinal(code);
+    }
+  }
+
+  _emitFinal(code){
+    this.lastCode = code;
+    this.resultText.textContent = code;
+    this.status.textContent = `Готово: ${code}`;
+    this._flashFrame(true);
+    this._beep();
+    setTimeout(()=> this._flashFrame(false), 900);
+
+    // блокируем новые срабатывания на короткое время
+    this.lockedUntil = performance.now() + this.EMIT_COOLDOWN_MS;
+    // сбрасываем кандидата
+    this.candidate = null;
+    this.candidateCount = 0;
+    this.candidateFirstAt = 0;
   }
 
   async _applyZoomFocus(){
@@ -314,22 +368,11 @@ class BarcodeScanner {
     }
   }
 
-  _onCode(code){
-    if (this.lastCode === code) return;
-    this.lastCode = code;
-    this.resultText.textContent = code;
-    this.status.textContent = `Штрих-код распознан: ${code}`;
-    this._flashFrame(true);
-    this._beep();
-    setTimeout(()=> this._flashFrame(false), 900);
-  }
-
   _onResize(){
     if (!this.isScanning) return;
     if (this.engine === 'quagga'){
       Quagga.stop?.(); this._startQuagga().catch(()=>{});
     }
-    // native/zxing — ROI читаем через DOM при каждом кадре, переинициализация не нужна
   }
 
   async stopScanner(){
@@ -337,7 +380,7 @@ class BarcodeScanner {
     this.startBtn.disabled = false;
     this.stopBtn.disabled = true;
     this.status.textContent = "Камера остановлена";
-    this.showError(""); this._flashFrame(false);
+    this._showError(""); this._flashFrame(false);
     cancelAnimationFrame(this._rafId);
     clearTimeout(this.noDetectionTimer);
 
@@ -355,9 +398,8 @@ class BarcodeScanner {
 
   _flashFrame(ok){ if (this.frameEl) this.frameEl.style.borderColor = ok ? "lime" : "#ff6b35"; }
   _handleError(msg){ this.error.textContent = msg; this.error.style.display="block"; this.status.textContent="Ошибка"; }
-  showError(msg){ this.error.style.display = msg ? "block" : "none"; this.error.textContent = msg; }
+  _showError(msg){ this.error.style.display = msg ? "block" : "none"; this.error.textContent = msg; }
 
-  // Звук успешного скана
   _beep(){
     try{
       const ctx = new (window.AudioContext||window.webkitAudioContext)();
