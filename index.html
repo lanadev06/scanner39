@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Code 39 Scanner</title>
-  <meta name="description" content="Сканер штрих-кодов Code 39 для мобильных устройств" />
-  <meta name="theme-color" content="#ff6b35" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Scanner39" />
-  <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="manifest" href="manifest.json" />
-  <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <title>Code 39 Scanner</title>
+        <meta name="description" content="Сканер штрих-кодов Code 39 для мобильных устройств">
+        <meta name="theme-color" content="#ff6b35">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="Scanner39">
+        <link rel="icon" type="image/svg+xml" href="icon.svg">
+        <link rel="apple-touch-icon" href="icon.svg">
+        <link rel="manifest" href="manifest.json">
+        <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
 .container{width:100%;max-width:600px;text-align:center;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:30px}
@@ -39,46 +39,40 @@ box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2}
 .error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
 .footer{margin-top:30px;font-size:.9em;color:#999}
 @media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-frame{width:92%;height:130px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">SC</div>
-      <h1>📷 Code 39 Scanner</h1>
-    </div>
-
-    <div class="scanner-container" id="scannerRoot">
-      <div class="scanner-frame"><div class="scanner-line"></div></div>
-      <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
-    </div>
-
-    <div class="controls">
-      <button id="startBtn" class="btn">▶️ Запустить камеру</button>
-      <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
-    </div>
-
-    <div class="status" id="status">Камера не активирована</div>
-
-    <div class="result">
-      <h3>Результат сканирования:</h3>
-      <div id="resultText">&nbsp;</div>
-    </div>
-
-    <div id="error" class="error" style="display:none"></div>
-
-    <div class="footer">
-      <p>Работает в браузере на мобильных устройствах</p>
-      <div id="pwa-indicator" style="margin-top:10px;font-size:.8em;color:#666;"></div>
-    </div>
-  </div>
-
-  <!-- ZXing-CPP (WASM) -->
-  <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@2/dist/iife/reader/index.js"></script>
-  <!-- Quagga2 как финальный фолбэк -->
-  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
-
-  <script>
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">SC</div>
+                <h1>📷 Code 39 Scanner</h1>
+            </div>
+            <div class="scanner-container" id="scannerRoot">
+                <div class="scanner-frame">
+                    <div class="scanner-line"></div>
+                </div>
+                <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
+            </div>
+            <div class="controls">
+                <button id="startBtn" class="btn">▶️ Запустить камеру</button>
+                <button id="stopBtn" class="btn" disabled>⏹️ Остановить</button>
+            </div>
+            <div class="status" id="status">Камера не активирована</div>
+            <div class="result">
+                <h3>Результат сканирования:</h3>
+                <div id="resultText">&nbsp;</div>
+            </div>
+            <div id="error" class="error" style="display:none"></div>
+            <div class="footer">
+                <p>Работает в браузере на мобильных устройствах</p>
+                <div id="pwa-indicator" style="margin-top:10px;font-size:.8em;color:#666;"></div>
+            </div>
+        </div>
+        <!-- ZXing-CPP (WASM) -->
+        <script src="https://cdn.jsdelivr.net/npm/zxing-wasm@2/dist/iife/reader/index.js"></script>
+        <!-- Quagga2 как финальный фолбэк -->
+        <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
+        <script>
 class BarcodeScanner {
   constructor(){
     this.startBtn = document.getElementById("startBtn");
@@ -433,6 +427,6 @@ function checkPWAStatus(){
   } else updatePWAIndicator('❌ PWA не поддерживается');
 }
 document.addEventListener('DOMContentLoaded', checkPWAStatus);
-  </script>
-</body>
+        </script>
+    </body>
 </html>
