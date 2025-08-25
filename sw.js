@@ -11,10 +11,11 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Кэш открыт');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache);     
       })
   );
 });
+
 
 // Перехват сетевых запросов
 self.addEventListener('fetch', event => {
