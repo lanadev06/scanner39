@@ -5,7 +5,7 @@ const ASSET_CACHE = `assets-${SW_VERSION}`;
 
 // Статика (без index.html). Пути — ОТНОСИТЕЛЬНЫЕ.
 const STATIC_ASSETS = [
-  './icon.svg',
+  './scannerlogo.png',
   './manifest.json',
   'https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js',
   'https://cdn.jsdelivr.net/npm/zxing-wasm@2/dist/iife/reader/index.js'

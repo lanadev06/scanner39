@@ -1,7 +1,7 @@
 {
-  "name": "Code 39 Scanner",
-  "short_name": "Scanner39",
-  "description": "Сканер штрих-кодов Code 39 для мобильных устройств",
+  "name": "ScannerOGP",
+  "short_name": "ScannerOGP",
+  "description": "Сканер штрих-кодов ScannerOGP для мобильных устройств",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f5f5",
@@ -9,9 +9,9 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "scannerlogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

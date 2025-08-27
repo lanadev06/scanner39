@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Тест PWA ScannerOGP</title>
+        <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        </style>
+    </head>
+    <body>
+        <h1>🧪 Тест PWA ScannerOGP</h1>
+        <div class="test-section">
+            <h3>📱 Проверка PWA функций</h3>
+            <button class="btn-primary" onclick="checkPWAStatus()">Проверить статус PWA</button>
+            <button class="btn-success" onclick="installPWA()">Установить PWA</button>
+            <button class="btn-danger" onclick="clearCache()">Очистить кэш</button>
+            <div id="pwa-status"></div>
+        </div>
+        <div class="test-section">
+            <h3>🔍 Проверка Service Worker</h3>
+            <div id="sw-status"></div>
+        </div>
+        <div class="test-section">
+            <h3>📋 Проверка Manifest</h3>
+            <div id="manifest-status"></div>
+        </div>
+        <div class="test-section">
+            <h3>🌐 Проверка офлайн режима</h3>
+            <div id="offline-status"></div>
+        </div>
+        <script>
+        let deferredPrompt;
+        
+        // Проверка поддержки PWA
+        function checkPWAStatus() {
+            const status = document.getElementById('pwa-status');
+            let html = '<h4>Результаты проверки:</h4>';
+            
+            // Проверка Service Worker
+            if ('serviceWorker' in navigator) {
+                html += '<p>✅ Service Worker поддерживается</p>';
+            } else {
+                html += '<p>❌ Service Worker не поддерживается</p>';
+            }
+            
+            // Проверка Manifest
+            if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+                html += '<p>✅ PWA запущено в standalone режиме</p>';
+            } else {
+                html += '<p>ℹ️ PWA запущено в браузере</p>';
+            }
+            
+            // Проверка установки
+            if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                html += '<p>✅ PWA установлено на устройство</p>';
+            } else {
+                html += '<p>ℹ️ PWA не установлено (можно установить)</p>';
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // Установка PWA
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Пользователь принял установку PWA');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('PWA уже установлено или установка недоступна');
+            }
+        }
+        
+        // Очистка кэша
+        async function clearCache() {
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    alert('Кэш очищен!');
+                    checkPWAStatus();
+                } catch (error) {
+                    alert('Ошибка при очистке кэша: ' + error.message);
+                }
+            } else {
+                alert('Кэш не поддерживается');
+            }
+        }
+        
+        // Проверка Service Worker
+        async function checkServiceWorker() {
+            const status = document.getElementById('sw-status');
+            let html = '<h4>Статус Service Worker:</h4>';
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        html += '<p>✅ Service Worker зарегистрирован</p>';
+                        html += '<p>Состояние: ' + registration.active ? 'Активен' : 'Неактивен' + '</p>';
+                        html += '<p>Область: ' + registration.scope + '</p>';
+                    } else {
+                        html += '<p>⚠️ Service Worker не зарегистрирован</p>';
+                    }
+                } catch (error) {
+                    html += '<p>❌ Ошибка при проверке SW: ' + error.message + '</p>';
+                }
+            } else {
+                html += '<p>❌ Service Worker не поддерживается</p>';
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // Проверка Manifest
+        async function checkManifest() {
+            const status = document.getElementById('manifest-status');
+            let html = '<h4>Проверка Manifest:</h4>';
+            
+            try {
+                const response = await fetch('/manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    html += '<p>✅ Manifest загружен успешно</p>';
+                    html += '<p>Название: ' + manifest.name + '</p>';
+                    html += '<p>Короткое название: ' + manifest.short_name + '</p>';
+                    html += '<p>Режим отображения: ' + manifest.display + '</p>';
+                    html += '<p>Иконки: ' + manifest.icons.length + ' шт.</p>';
+                } else {
+                    html += '<p>❌ Ошибка загрузки manifest.json</p>';
+                }
+            } catch (error) {
+                html += '<p>❌ Ошибка при проверке manifest: ' + error.message + '</p>';
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // Проверка офлайн режима
+        function checkOfflineMode() {
+            const status = document.getElementById('offline-status');
+            let html = '<h4>Проверка офлайн режима:</h4>';
+            
+            if (navigator.onLine) {
+                html += '<p>✅ Устройство онлайн</p>';
+            } else {
+                html += '<p>🌐 Устройство офлайн</p>';
+            }
+            
+            html += '<p>Сетевая информация: ' + (navigator.connection ? navigator.connection.effectiveType : 'Недоступна') + '</p>';
+            
+            status.innerHTML = html;
+        }
+        
+        // Слушатели событий
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('PWA можно установить');
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA установлено');
+            deferredPrompt = null;
+        });
+        
+        // Автоматические проверки при загрузке
+        window.addEventListener('load', () => {
+            checkServiceWorker();
+            checkManifest();
+            checkOfflineMode();
+        });
+        
+        // Слушатель изменения сетевого статуса
+        window.addEventListener('online', () => {
+            checkOfflineMode();
+        });
+        
+        window.addEventListener('offline', () => {
+            checkOfflineMode();
+        });
+        </script>
+    </body>
+</html>
