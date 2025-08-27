@@ -12,6 +12,18 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="theme-color" content="#ff6b35">
         <meta name="msapplication-TileColor" content="#ff6b35">
+        <!-- Специальные мета-теги для Android -->
+        <meta name="application-name" content="ScannerOGP">
+        <meta name="msapplication-TileImage" content="scannerlogo.png">
+        <meta name="msapplication-config" content="none">
+        <!-- Android Chrome PWA -->
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="mobile-web-app-title" content="ScannerOGP">
+        <!-- Android WebView -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
         <link rel="icon" type="image/png" href="scannerlogo.png">
         <link rel="apple-touch-icon" href="scannerlogo.png">
         <link rel="manifest" href="manifest.json">
@@ -22,61 +34,70 @@ body{min-height:100vh;min-height:100dvh;padding-top:env(safe-area-inset-top);pad
 body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
 .container{width:100%;max-width:600px;text-align:center;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:30px}
 .header{margin-bottom:30px}
-.logo{width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,#dfcec7 0%,#ffffff 100%);border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(255,107,53,.3)}
-.control-panel .logo{width:60px;height:60px;margin:0 auto 15px}
-.logo-btn{border:none;background:none;cursor:pointer;transition:transform .2s ease}
-.logo-btn:hover{transform:scale(1.05)}
+.logo{width:110px;margin:0 auto 20px;background:linear-gradient(135deg,#dfcec7 0%,#ffffff 100%);border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(255,107,53,.3)}
+.control-panel .logo{width:80px;height:80px;margin:0 auto 0;transition:all .3s ease;margin-bottom:8px}
+.logo-btn{border:none;background:none;cursor:pointer;transition:transform .3s ease;border-radius:15px;overflow:hidden}
+.logo-btn:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(255,107,53,.4)}
 .logo-btn:active{transform:scale(0.95)}
-.navigation-menu{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:all .2s ease}
+.logo-btn:focus{outline:2px solid #ff6b35;outline-offset:2px}
+.navigation-menu{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:all .3s ease}
 .menu-header{margin-bottom:40px;text-align:center}
 .menu-header .logo{width:80px;height:80px;margin:0 auto 20px;box-shadow:0 8px 25px rgba(255,107,53,.4)}
 .menu-items{display:flex;flex-direction:column;gap:12px;width:100%;max-width:350px}
-.menu-item{padding:18px 24px;border:none;border-radius:16px;font-size:15px;font-weight:500;cursor:pointer;transition:all .25s ease;text-align:left;position:relative;overflow:hidden;background:rgba(255,255,255,.95);color:#333;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.menu-item{padding:18px 24px;border:none;border-radius:16px;font-size:15px;font-weight:500;cursor:pointer;transition:all .3s ease;text-align:left;position:relative;overflow:hidden;background:rgba(255,255,255,.95);color:#333;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .menu-item::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transition:left .5s ease}
 .menu-item:hover::before{left:100%}
 .menu-item:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.15);background:rgba(255,255,255,1)}
 .menu-item:active{transform:translateY(0)}
+.menu-item:focus{outline:2px solid #ff6b35;outline-offset:2px}
 .menu-item-scan{border-left:4px solid #ff6b35}
 .menu-item-manual{border-left:4px solid #ff6b35}
 .menu-item-auth{border-left:4px solid #28a745}
 .menu-item-list{border-left:4px solid #6c757d}
 .menu-item-support{border-left:4px solid #007bff}
 .menu-item-info{border-left:4px solid #dc3545}
-.logo img{width:100%;height:100%;object-fit:contain;border-radius:15px}
-.header h1{font-size:2.2em;margin-bottom:10px;color:#ff6b35}
-.scanner-wrapper{display:flex;gap:20px;margin-bottom:20px}
-.scanner-container{position:relative;width:65%;height:400px;background:#000;border-radius:15px;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:contain;border-radius:15px;transition:all .3s ease}
+.header h1{font-size:2.2em;margin-bottom:10px;color:#ff6b35;transition:all .3s ease}
+.scanner-wrapper{display:flex;gap:20px;margin-bottom:20px;flex-direction:row;align-items:stretch}
+.scanner-container{position:relative;width:65%;height:400px;background:#000;border-radius:15px;overflow:hidden;transition:all .3s ease}
 #scannerRoot video,#scannerRoot canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .scanner-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:min(88%,380px);height:150px;border:4px solid #ff6b35;border-radius:12px;
-  box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2}
-.scanner-line{position:absolute;left:0;right:0;height:3px;background:#ff6b35;animation:scan 2s infinite ease-in-out;z-index:2}
+  box-shadow:0 0 0 2000px rgba(0,0,0,.3);pointer-events:none;z-index:2;transition:all .3s ease}
+.scanner-line{position:absolute;left:0;right:0;height:3px;background:#ff6b35;animation:scan 2s infinite ease-in-out;z-index:2;transition:all .3s ease}
 @keyframes scan{0%,100%{top:10%}50%{top:90%}}
-.scan-status{position:absolute;top:10px;left:10px;background:rgba(255,107,53,.9);color:#fff;padding:5px 10px;border-radius:5px;font-size:12px;z-index:3}
-.controls{margin:25px 0}
-.control-panel{width:30%;height:400px;padding:20px;text-align:center;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.scan-status{position:absolute;top:10px;left:10px;background:rgba(255,107,53,.9);color:#fff;padding:5px 10px;border-radius:5px;font-size:12px;z-index:3;transition:all .3s ease}
+.controls{margin:0;display:flex;flex-direction:column;gap:20px;align-items:center;width:100%}
+.control-panel{text-align:center;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:15px;width:35%;flex-shrink:0;height:100%}
 
-.result{position:relative;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:25px;border-radius:15px;margin:25px 0;box-shadow:0 8px 25px rgba(255,107,53,.3);transition:all .3s ease;clear:both}
+.result{position:relative;background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:25px;border-radius:15px;margin:25px 0;box-shadow:0 8px 25px rgba(255,107,53,.3);transition:all .3s ease;clear:both;overflow:hidden}
 .result.actual{background:linear-gradient(135deg,#28a745 0%,#20c997 100%);box-shadow:0 8px 25px rgba(40,167,69,.3)}
-.version-text{position:absolute;top:5px;right:10px;color:#fff;font-size:12px;font-weight:600}
+.version-text{position:absolute;top:5px;right:10px;color:#fff;font-size:25px;font-weight:600}
 .loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;border-radius:15px;z-index:5}
 .loading-text{color:#fff;font-size:14px;font-weight:600;margin-top:10px;text-align:center}
 .result-fields{display:flex;flex-direction:column;gap:15px}
-.result-field{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.result-field{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.2);transition:all .3s ease}
 .result-field:last-child{border-bottom:none}
-.field-label{font-weight:600;font-size:1.1em;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.3)}
-.field-value{font-size:1.2em;font-weight:700;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.3);word-break:break-all;text-align:right;flex:1;margin-left:20px}
+.field-label{font-weight:600;font-size:12px;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.3);transition:all .3s ease}
+.field-value{font-size:12px;font-weight:700;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.3);word-break:break-all;text-align:right;flex:1;margin-left:20px;transition:all .3s ease}
 
-.status{margin:20px 0;font-style:italic;color:#666;font-size:1.1em;clear:both}
-.zoom-controls{margin:10px 0;text-align:center;transition:opacity .3s ease;overflow:hidden}
+.status{margin:20px 0;font-style:italic;color:#666;font-size:1.1em;clear:both;transition:all .3s ease}
+.zoom-controls{margin:0;text-align:center;transition:opacity .3s ease;overflow:hidden;flex:1;display:flex;flex-direction:column;justify-content:center;width:100%}
 .zoom-label{margin-bottom:10px;font-weight:600;color:#333;font-size:1em}
-.zoom-buttons{display:flex;justify-content:center;gap:6px;flex-wrap:nowrap;align-items:center;width:fit-content;margin:0 auto}
-.zoom-btn{width:32px;height:32px;padding:0;font-size:16px;font-weight:bold;border-radius:6px;opacity:0.6;transition:all .2s ease;display:flex;align-items:center;justify-content:center;line-height:1;box-sizing:border-box;flex:0 0 32px;aspect-ratio:1/1}
+.zoom-buttons{display:flex;flex-direction:column;justify-content:center;gap:8px;flex-wrap:nowrap;align-items:center;width:100%;margin:0 auto}
+.zoom-btn{width:40px;height:40px;padding:0;font-size:18px;font-weight:bold;border-radius:8px;opacity:0.6;transition:all .2s ease;display:flex;align-items:center;justify-content:center;line-height:1;box-sizing:border-box;flex:0 0 40px;aspect-ratio:1/1;margin:1px 0}
+
+/* Стили для кнопок в панели управления */
+.control-panel .btn{transition:all .3s ease;border-radius:8px;font-weight:600;margin:2px 0}
+.control-panel .btn:hover{transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.control-panel .btn:active{transform:scale(0.98)}
+.control-panel .btn:focus{outline:2px solid #ff6b35;outline-offset:2px}
 .zoom-btn:hover:not(:disabled){opacity:1;transform:scale(1.05)}
 .zoom-btn:disabled{opacity:0.3;cursor:not-allowed}
+.zoom-btn:focus{outline:2px solid #ff6b35;outline-offset:2px}
 
-.error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
-.footer{margin-top:30px;font-size:.9em;color:#999}
+.error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b;transition:all .3s ease}
+.footer{margin-top:30px;font-size:.9em;color:#999;transition:all .3s ease}
 
 /* PWA полноэкранный режим */
 @media (display-mode: standalone) {
@@ -92,7 +113,410 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
-@media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-container{height:300px}.scanner-frame{width:92%;height:130px}.control-panel{height:300px}.control-panel .logo{width:50px;height:50px;margin:0 auto 10px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}.zoom-buttons{width:fit-content;gap:4px}.zoom-btn{width:28px;height:28px;font-size:14px;flex:0 0 28px;aspect-ratio:1/1}}
+
+
+
+
+/* Основные стили для мобильных устройств - сохраняем двухколоночную структуру */
+@media (max-width:480px){
+  .container{padding:15px}
+  .scanner-wrapper{display:flex;flex-direction:row;gap:12px;align-items:stretch}
+  .scanner-container{width:65%;height:280px;min-width:180px}
+  .scanner-frame{width:90%;height:120px}
+  .control-panel{width:35%;min-width:100px;height:280px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:12px;padding:15px 0}
+  .control-panel .logo{width:50px;height:50px;margin-bottom:8px;flex-shrink:0}
+  .control-panel .btn{width:90% !important;height:40px !important;font-size:0.9em;max-width:90px;margin:3px 0;flex-shrink:0}
+  .zoom-controls{width:90%;flex-shrink:0}
+  .zoom-controls .zoom-buttons{flex-direction:column;gap:10px;width:100%}
+  .zoom-controls .zoom-btn{width:100%;height:32px;font-size:14px;margin:2px 0;flex-shrink:0}
+  .header h1{font-size:1.6em;margin-bottom:8px}
+}
+
+/* Стили для очень маленьких экранов */
+@media (max-width:360px){
+  .scanner-wrapper{gap:8px;align-items:stretch}
+  .scanner-container{width:62%;min-width:160px}
+  .control-panel{width:38%;min-width:90px;gap:8px;padding:10px 0}
+  .control-panel .logo{width:45px;height:45px;margin-bottom:6px;flex-shrink:0}
+  .control-panel .btn{width:85% !important;height:35px !important;font-size:0.8em;max-width:80px;margin:2px 0;flex-shrink:0}
+  .zoom-controls{width:85%;flex-shrink:0}
+  .zoom-controls .zoom-buttons{gap:8px}
+  .zoom-controls .zoom-btn{height:28px;font-size:12px;margin:2px 0;flex-shrink:0}
+}
+
+/* Стили для планшетов и средних экранов */
+@media (min-width:481px) and (max-width:768px){
+  .scanner-wrapper{gap:20px;align-items:stretch}
+  .scanner-container{width:65%}
+  .control-panel{width:35%;gap:18px;padding:20px 0}
+  .control-panel .logo{width:70px;height:70px;margin-bottom:12px;flex-shrink:0}
+  .control-panel .btn{width:95% !important;max-width:120px;margin:3px 0;flex-shrink:0}
+  .zoom-controls{width:95%;flex-shrink:0}
+  .zoom-controls .zoom-buttons{gap:12px}
+}
+
+/* Обеспечиваем двухколоночную структуру для всех размеров экрана */
+@media (max-width:600px){
+  .scanner-wrapper{display:flex;flex-direction:row;align-items:stretch;gap:15px}
+  .scanner-container{flex:1;min-width:0}
+  .control-panel{flex-shrink:0;width:auto;min-width:120px;height:100%}
+}
+
+/* Дополнительные стили для лучшей адаптивности */
+@media (max-width:400px){
+  .container{padding:10px}
+  .scanner-wrapper{gap:8px;align-items:stretch}
+  .scanner-container{height:250px}
+  .scanner-frame{width:85%;height:100px}
+  .control-panel{height:250px;gap:10px;padding:12px 0}
+  .control-panel .logo{width:45px;height:45px;margin-bottom:6px;flex-shrink:0}
+  .control-panel .btn{width:85% !important;height:32px !important;font-size:0.8em;max-width:75px;margin:2px 0;flex-shrink:0}
+  .zoom-controls{width:85%;flex-shrink:0}
+  .zoom-controls .zoom-buttons{gap:8px}
+  .zoom-controls .zoom-btn{height:24px;font-size:12px;margin:2px 0;flex-shrink:0}
+}
+
+/* Стили для ландшафтной ориентации на мобильных устройствах */
+@media (max-width:768px) and (orientation: landscape){
+  .scanner-wrapper{gap:15px;align-items:stretch}
+  .scanner-container{height:200px}
+  .control-panel{height:200px;gap:10px;padding:12px 0}
+  .control-panel .logo{width:50px;height:50px;margin-bottom:8px;flex-shrink:0}
+  .control-panel .btn{height:35px !important;flex-shrink:0}
+  .zoom-controls{flex-shrink:0}
+  .zoom-controls .zoom-btn{height:28px;flex-shrink:0}
+}
+
+/* Дополнительные стили для равномерного распределения элементов */
+@media (max-width:480px){
+  .control-panel .d-flex{justify-content:space-between;height:100%;padding:5px 0}
+  .control-panel .logo{flex:0 0 auto}
+  .control-panel .zoom-controls{flex:0 0 auto}
+  .control-panel .btn{flex:0 0 auto}
+}
+
+@media (max-width:360px){
+  .control-panel .d-flex{justify-content:space-between;height:100%;padding:3px 0}
+}
+
+/* Универсальные стили для всех мобильных устройств */
+@media (max-width:768px){
+  /* Базовые настройки для всех мобильных устройств */
+  .scanner-wrapper{display:flex;flex-direction:row;align-items:stretch;gap:clamp(8px, 2vw, 20px)}
+  .scanner-container{flex:1;min-width:0;height:clamp(250px, 60vh, 400px)}
+  .control-panel{flex-shrink:0;width:clamp(100px, 35vw, 150px);height:100%;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:clamp(8px, 2vh, 15px);padding:clamp(8px, 2vh, 15px) 0}
+  
+  /* Адаптивные размеры логотипа */
+  .control-panel .logo{width:clamp(45px, 12vw, 80px);height:clamp(45px, 12vw, 80px);flex-shrink:0;margin-bottom:clamp(4px, 1vh, 8px)}
+  
+  /* Адаптивные размеры кнопок */
+  .control-panel .btn{width:clamp(80px, 90%, 130px) !important;height:clamp(35px, 8vh, 50px) !important;font-size:clamp(0.8em, 2.5vw, 1em);flex-shrink:0;margin:clamp(1px, 0.5vh, 3px) 0}
+  
+  /* Адаптивные размеры элементов управления приближением */
+  .zoom-controls{width:clamp(80px, 90%, 130px);flex-shrink:0}
+  .zoom-controls .zoom-buttons{flex-direction:column;gap:clamp(6px, 1.5vh, 10px);width:100%}
+  .zoom-controls .zoom-btn{width:100%;height:clamp(24px, 6vh, 40px);font-size:clamp(12px, 3vw, 18px);flex-shrink:0;margin:clamp(1px, 0.5vh, 2px) 0}
+}
+
+/* Специальные стили для очень маленьких экранов */
+@media (max-width:320px){
+  .scanner-wrapper{gap:6px}
+  .control-panel{width:clamp(80px, 38vw, 100px);gap:6px;padding:6px 0}
+  .control-panel .logo{width:40px;height:40px;margin-bottom:4px}
+  .control-panel .btn{height:32px !important;font-size:0.75em}
+  .zoom-controls .zoom-btn{height:22px;font-size:11px}
+}
+
+/* Специальные стили для средних мобильных экранов */
+@media (min-width:321px) and (max-width:480px){
+  .scanner-wrapper{gap:clamp(10px, 2.5vw, 15px)}
+  .control-panel{width:clamp(110px, 35vw, 140px);gap:clamp(10px, 2.5vh, 15px);padding:clamp(10px, 2.5vh, 15px) 0}
+  .control-panel .logo{width:clamp(50px, 13vw, 70px);height:clamp(50px, 13vw, 70px);margin-bottom:clamp(6px, 1.5vh, 10px)}
+  .control-panel .btn{height:clamp(38px, 9vh, 45px) !important;font-size:clamp(0.85em, 2.8vw, 0.95em)}
+  .zoom-controls .zoom-btn{height:clamp(28px, 7vh, 35px);font-size:clamp(13px, 3.5vw, 16px)}
+}
+
+/* Специальные стили для больших мобильных экранов и планшетов */
+@media (min-width:481px) and (max-width:768px){
+  .scanner-wrapper{gap:clamp(15px, 3vw, 25px)}
+  .control-panel{width:clamp(130px, 35vw, 160px);gap:clamp(15px, 3vh, 20px);padding:clamp(15px, 3vh, 20px) 0}
+  .control-panel .logo{width:clamp(60px, 15vw, 80px);height:clamp(60px, 15vw, 80px);margin-bottom:clamp(8px, 2vh, 12px)}
+  .control-panel .btn{height:clamp(42px, 10vh, 50px) !important;font-size:clamp(0.9em, 3vw, 1em)}
+  .zoom-controls .zoom-btn{height:clamp(32px, 8vh, 40px);font-size:clamp(14px, 4vw, 18px)}
+}
+
+/* Стили для обеспечения совместимости с разными браузерами */
+@supports not (gap: clamp(8px, 2vw, 20px)){
+  @media (max-width:768px){
+    .scanner-wrapper{gap:15px}
+    .control-panel{gap:12px;padding:12px 0}
+    .control-panel .logo{margin-bottom:6px}
+    .control-panel .btn{margin:2px 0}
+    .zoom-controls .zoom-buttons{gap:8px}
+    .zoom-controls .zoom-btn{margin:1px 0}
+  }
+}
+
+/* Стили для устройств с высоким DPI */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi){
+  .control-panel .btn{font-weight:500}
+  .zoom-controls .zoom-btn{font-weight:600}
+}
+
+/* Стили для устройств с низким DPI */
+@media (-webkit-max-device-pixel-ratio: 1), (max-resolution: 96dpi){
+  .control-panel .btn{font-weight:600}
+  .zoom-controls .zoom-btn{font-weight:700}
+}
+
+/* Стили для устройств с сенсорным экраном */
+@media (hover: none) and (pointer: coarse){
+  .control-panel .btn{min-height:44px;min-width:44px}
+  .zoom-controls .zoom-btn{min-height:32px;min-width:32px}
+  .control-panel .logo{min-height:48px;min-width:48px}
+}
+
+/* Стили для устройств без сенсорного экрана */
+@media (hover: hover) and (pointer: fine){
+  .control-panel .btn:hover{transform:scale(1.02)}
+  .zoom-controls .zoom-btn:hover{opacity:1}
+}
+
+/* Стили для портретной ориентации на мобильных устройствах */
+@media (max-width:768px) and (orientation: portrait){
+  .scanner-container{height:clamp(280px, 70vh, 400px)}
+  .control-panel{height:100%;gap:clamp(10px, 2.5vh, 18px)}
+}
+
+/* Стили для ландшафтной ориентации на мобильных устройствах */
+@media (max-width:768px) and (orientation: landscape){
+  .scanner-container{height:clamp(200px, 50vh, 300px)}
+  .control-panel{height:100%;gap:clamp(8px, 2vh, 15px)}
+  .control-panel .logo{width:clamp(40px, 10vw, 60px);height:clamp(40px, 10vw, 60px)}
+  .control-panel .btn{height:clamp(32px, 7vh, 40px) !important}
+  .zoom-controls .zoom-btn{height:clamp(24px, 6vh, 32px)}
+}
+
+/* Стили для очень широких экранов (планшеты в альбомной ориентации) */
+@media (min-width:769px) and (max-width:1024px){
+  .scanner-wrapper{gap:clamp(20px, 4vw, 30px)}
+  .scanner-container{width:65%;height:clamp(350px, 80vh, 450px)}
+  .control-panel{width:35%;gap:clamp(18px, 3vh, 25px);padding:clamp(20px, 4vh, 30px) 0}
+  .control-panel .logo{width:clamp(70px, 18vw, 90px);height:clamp(70px, 18vw, 90px)}
+  .control-panel .btn{width:clamp(120px, 95%, 150px) !important;height:clamp(45px, 10vh, 55px) !important}
+  .zoom-controls{width:clamp(120px, 95%, 150px)}
+  .zoom-controls .zoom-btn{height:clamp(36px, 8vh, 44px)}
+}
+
+/* Стили для устройств с нестандартными размерами viewport */
+@media (max-width:768px) and (max-height:500px){
+  .scanner-container{height:clamp(180px, 45vh, 250px)}
+  .control-panel{gap:clamp(6px, 1.5vh, 12px);padding:clamp(6px, 1.5vh, 12px) 0}
+  .control-panel .logo{width:clamp(35px, 9vw, 50px);height:clamp(35px, 9vw, 50px)}
+  .control-panel .btn{height:clamp(28px, 6vh, 35px) !important}
+  .zoom-controls .zoom-btn{height:clamp(20px, 5vh, 28px)}
+}
+
+@media (max-width:768px) and (min-height:800px){
+  .scanner-container{height:clamp(350px, 75vh, 450px)}
+  .control-panel{gap:clamp(15px, 3vh, 20px);padding:clamp(15px, 3vh, 20px) 0}
+  .control-panel .logo{width:clamp(55px, 14vw, 75px);height:clamp(55px, 14vw, 75px)}
+  .control-panel .btn{height:clamp(42px, 9vh, 50px) !important}
+  .zoom-controls .zoom-btn{height:clamp(30px, 7vh, 38px)}
+}
+
+/* Стили для устройств с очень узкими экранами */
+@media (max-width:280px){
+  .scanner-wrapper{gap:4px}
+  .scanner-container{width:60%;min-width:120px}
+  .control-panel{width:40%;min-width:70px;gap:4px;padding:4px 0}
+  .control-panel .logo{width:35px;height:35px;margin-bottom:3px}
+  .control-panel .btn{width:100% !important;height:30px !important;font-size:0.7em}
+  .zoom-controls{width:100%}
+  .zoom-controls .zoom-btn{height:20px;font-size:10px}
+}
+
+/* Специальные стили для Android устройств */
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+  /* Улучшение отображения логотипа на Android */
+  .control-panel .logo img{
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+}
+
+/* Специальные стили для Android Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width:768px) {
+  .control-panel .logo{
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+  
+  .control-panel .logo img{
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -webkit-filter: contrast(1.1) brightness(1.05);
+    filter: contrast(1.1) brightness(1.05);
+  }
+}
+
+/* Специальные стили для Android WebView */
+@media screen and (max-width:768px) {
+  .control-panel .logo{
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  .control-panel .logo img{
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Дополнительные стили для улучшения логотипа на Android */
+@media screen and (max-width:768px) {
+  .control-panel .logo{
+    /* Улучшение рендеринга на Android */
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    /* Предотвращение размытия */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Улучшение четкости */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+  }
+  
+  .control-panel .logo img{
+    /* Принудительное включение аппаратного ускорения */
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Улучшение качества изображения */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    /* Фильтры для улучшения четкости */
+    -webkit-filter: contrast(1.1) brightness(1.05) saturate(1.1);
+    filter: contrast(1.1) brightness(1.05) saturate(1.1);
+    /* Предотвращение размытия */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Специальные стили для Android с высоким DPI */
+@media screen and (-webkit-min-device-pixel-ratio: 2) and (max-width:768px) {
+  .control-panel .logo img{
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -webkit-filter: contrast(1.2) brightness(1.1) saturate(1.2);
+    filter: contrast(1.2) brightness(1.1) saturate(1.2);
+  }
+}
+
+/* Специальные стили для Android с низким DPI */
+@media screen and (-webkit-max-device-pixel-ratio: 1) and (max-width:768px) {
+  .control-panel .logo img{
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -webkit-filter: contrast(1.05) brightness(1.02) saturate(1.05);
+    filter: contrast(1.05) brightness(1.02) saturate(1.05);
+  }
+}
+
+/* Стили для результата на мобильных устройствах */
+@media (max-width:480px){
+  .result{padding:20px;margin:20px 0}
+  .result-fields{gap:12px}
+  .result-field{padding:10px 0}
+  .field-label{font-size:11px}
+  .field-value{font-size:11px;margin-left:15px}
+  .version-text{font-size:20px}
+}
+
+@media (max-width:360px){
+  .result{padding:15px;margin:15px 0}
+  .result-fields{gap:10px}
+  .result-field{padding:8px 0}
+  .field-label{font-size:10px}
+  .field-value{font-size:10px;margin-left:10px}
+  .version-text{font-size:18px}
+}
+
+/* Стили для меню навигации на мобильных устройствах */
+@media (max-width:480px){
+  .navigation-menu{padding:15px}
+  .menu-header{margin-bottom:30px}
+  .menu-header .logo{width:60px;height:60px;margin:0 auto 15px}
+  .menu-items{gap:10px;max-width:300px}
+  .menu-item{padding:15px 20px;font-size:14px}
+}
+
+@media (max-width:360px){
+  .navigation-menu{padding:10px}
+  .menu-header{margin-bottom:25px}
+  .menu-header .logo{width:50px;height:50px;margin:0 auto 12px}
+  .menu-items{gap:8px;max-width:280px}
+  .menu-item{padding:12px 18px;font-size:13px}
+}
+
+/* Стили для footer и статуса на мобильных устройствах */
+@media (max-width:480px){
+  .footer{margin-top:20px}
+  .status{font-size:1em;margin:15px 0}
+  #pwa-indicator{font-size:0.75em;margin-top:8px}
+}
+
+@media (max-width:360px){
+  .footer{margin-top:15px}
+  .status{font-size:0.9em;margin:12px 0}
+  #pwa-indicator{font-size:0.7em;margin-top:6px}
+}
+
+/* Стили для ошибок на мобильных устройствах */
+@media (max-width:480px){
+  .error{padding:12px;margin:12px 0;font-size:0.9em}
+}
+
+@media (max-width:360px){
+  .error{padding:10px;margin:10px 0;font-size:0.85em}
+}
+
+/* Стили для индикатора загрузки на мобильных устройствах */
+@media (max-width:480px){
+  .loading-overlay{padding:20px}
+  .loading-text{font-size:13px;margin-top:8px}
+}
+
+@media (max-width:360px){
+  .loading-overlay{padding:15px}
+  .loading-text{font-size:12px;margin-top:6px}
+}
         </style>
     </head>
     <body>
@@ -105,22 +529,36 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
                     <div id="scannerStatus" class="scan-status" style="display:none;">🔍 Сканирование...</div>
                 </div>
                 <div class="control-panel">
-                    <div class="controls">
-                        <button class="logo logo-btn" id="logoBtn">
+                    <div class="d-flex flex-column align-items-center gap-md-1 gap-lg-3">
+                        <button class="logo-btn logo" style="width: 130px; height: 120px;" id="logoBtn">
                             <img src="scannerlogo.png" alt="Logo">
                         </button>
                         <div class="zoom-controls">
                             <div class="zoom-buttons">
-                                <button class="btn btn-outline-secondary btn-sm zoom-btn" id="zoomMinus" disabled>−</button>
-                                <button class="btn btn-outline-secondary btn-sm zoom-btn" id="zoomPlus" disabled>+</button>
+                                <button
+                                    class="btn btn-outline-secondary btn-hover"
+                                    style="width: 130px; height: 50px;"
+                                    id="zoomMinus"
+                                    disabled
+                                >−</button>
+                                <button
+                                    class="btn btn-outline-secondary btn-hover"
+                                    style="width: 130px; height: 50px;"
+                                    id="zoomPlus"
+                                    disabled
+                                >+</button>
                             </div>
                         </div>
-                        <button id="startBtn" class="btn btn-success btn-lg mb-3">пуск</button>
-                        <button id="stopBtn" class="btn btn-secondary btn-lg mb-3" disabled>стоп</button>
+                        <button id="startBtn" class="btn btn-success" style="width: 130px; height: 50px;">пуск</button>
+                        <button
+                            id="stopBtn"
+                            class="btn btn-secondary"
+                            style="width: 130px; height: 50px;"
+                            disabled
+                        >стоп</button>
                     </div>
                 </div>
             </div>
-            <div class="status" id="status">Камера не активирована</div>
             <div class="result">
                 <div class="result-fields">
                     <div class="result-field">
@@ -168,6 +606,7 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
                 </div>
             </div>
             <div class="footer">
+                <div class="status" id="status">Камера не активирована</div>
                 <div id="pwa-indicator" style="margin-top:10px;font-size:.8em;color:#666;"></div>
             </div>
         </div>
@@ -192,6 +631,49 @@ if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(enableFullscreen, 1000);
   });
+}
+
+// Специальные функции для улучшения отображения на Android
+function optimizeForAndroid() {
+  // Определяем Android устройство
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isChrome = /Chrome/i.test(navigator.userAgent);
+  const isWebView = /wv/i.test(navigator.userAgent);
+  
+  if (isAndroid) {
+    console.log('Android устройство обнаружено, применяем оптимизации...');
+    
+    // Принудительное включение аппаратного ускорения для логотипа
+    const logoElements = document.querySelectorAll('.control-panel .logo, .control-panel .logo img');
+    logoElements.forEach(element => {
+      element.style.webkitTransform = 'translate3d(0,0,0)';
+      element.style.transform = 'translate3d(0,0,0)';
+      element.style.webkitBackfaceVisibility = 'hidden';
+      element.style.backfaceVisibility = 'hidden';
+      element.style.webkitPerspective = '1000px';
+      element.style.perspective = '1000px';
+    });
+    
+    // Улучшение качества изображений на Android
+    if (isChrome || isWebView) {
+      const images = document.querySelectorAll('.control-panel .logo img');
+      images.forEach(img => {
+        img.style.imageRendering = 'crisp-edges';
+        img.style.webkitImageRendering = 'crisp-edges';
+        img.style.imageRendering = 'pixelated';
+        
+        // Применяем фильтры для улучшения четкости
+        img.style.webkitFilter = 'contrast(1.1) brightness(1.05) saturate(1.1)';
+        img.style.filter = 'contrast(1.1) brightness(1.05) saturate(1.1)';
+      });
+    }
+    
+    // Специальные настройки для Android WebView
+    if (isWebView) {
+      document.body.style.webkitFontSmoothing = 'antialiased';
+      document.body.style.mozOsxFontSmoothing = 'grayscale';
+    }
+  }
 }
 
 class BarcodeScanner {
@@ -860,7 +1342,10 @@ class BarcodeScanner {
 }
 
 
-document.addEventListener("DOMContentLoaded", ()=> new BarcodeScanner().initialize());
+document.addEventListener("DOMContentLoaded", ()=> {
+  new BarcodeScanner().initialize();
+  optimizeForAndroid(); // Применяем оптимизации для Android
+});
 
 // Регистрация Service Worker (ОБНОВЛЕНА: относительный путь, авто-обновление)
 if ('serviceWorker' in navigator) {
