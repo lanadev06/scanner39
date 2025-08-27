@@ -64,9 +64,12 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
 .field-value{font-size:1.2em;font-weight:700;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.3);word-break:break-all;text-align:right;flex:1;margin-left:20px}
 
 .status{margin:20px 0;font-style:italic;color:#666;font-size:1.1em;clear:both}
-.zoom-controls{margin:20px 0;text-align:center;transition:opacity .3s ease}
+.zoom-controls{margin:10px 0;text-align:center;transition:opacity .3s ease}
 .zoom-label{margin-bottom:10px;font-weight:600;color:#333;font-size:1em}
-.zoom-buttons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.zoom-buttons{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.zoom-btn{width:32px;height:32px;padding:0;font-size:16px;font-weight:bold;border-radius:6px;opacity:0.6;transition:all .2s ease}
+.zoom-btn:hover:not(:disabled){opacity:1;transform:scale(1.05)}
+.zoom-btn:disabled{opacity:0.3;cursor:not-allowed}
 
 .error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
 .footer{margin-top:30px;font-size:.9em;color:#999}
@@ -87,14 +90,14 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
                         <button class="logo logo-btn" id="logoBtn">
                             <img src="scannerlogo.png" alt="Logo">
                         </button>
+                        <div class="zoom-controls">
+                            <div class="zoom-buttons">
+                                <button class="btn btn-outline-secondary btn-sm zoom-btn" id="zoomMinus" disabled>−</button>
+                                <button class="btn btn-outline-secondary btn-sm zoom-btn" id="zoomPlus" disabled>+</button>
+                            </div>
+                        </div>
                         <button id="startBtn" class="btn btn-success btn-lg mb-3">пуск</button>
                         <button id="stopBtn" class="btn btn-secondary btn-lg mb-3" disabled>стоп</button>
-                    </div>
-                    <div class="zoom-controls" style="display: none;">
-                        <div class="zoom-buttons">
-                            <button class="btn btn-outline-primary btn-sm" id="zoomMinus">−</button>
-                            <button class="btn btn-outline-primary btn-sm" id="zoomPlus">+</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -239,19 +242,14 @@ class BarcodeScanner {
       this.status.textContent = "Сканер готов! Наведите на штрих-код ScannerOGP (1×)";
       this.frameEl.style.display = "block";
       
-              // Проверяем поддержку приближения и показываем кнопки только если нужно
+              // Проверяем поддержку приближения и активируем кнопки только если нужно
         if (this.zoomControls) {
-          // Сначала скрываем, потом проверяем поддержку
-          this.zoomControls.style.display = "none";
-          this.zoomControls.style.opacity = "0";
+          // Сначала отключаем кнопки zoom
+          this._disableZoomControls();
           // Проверяем поддержку приближения после запуска камеры
           setTimeout(() => {
             if (this._checkZoomSupport()) {
-              this.zoomControls.style.display = "block";
-              // Плавное появление
-              setTimeout(() => {
-                this.zoomControls.style.opacity = "1";
-              }, 50);
+              // Кнопки уже включены в _checkZoomSupport
             } else {
               // Обновляем статус, если zoom не поддерживается
               if (this.status.textContent.includes('(1×)')) {
@@ -493,10 +491,7 @@ class BarcodeScanner {
   _setupZoomControls(){
     if (!this.zoomControls) return;
     
-    // Проверяем поддержку приближения
-    this._checkZoomSupport();
-    
-    // Настройка кнопок + и -
+    // Настройка кнопок + и - (проверка zoom будет позже при запуске камеры)
     const zoomPlus = document.getElementById('zoomPlus');
     const zoomMinus = document.getElementById('zoomMinus');
     
@@ -521,9 +516,7 @@ class BarcodeScanner {
       // Проверяем, поддерживает ли устройство приближение
       if (!caps.zoom || caps.zoom.min === caps.zoom.max || caps.zoom.max <= 1.1) {
         console.log('Устройство не поддерживает приближение');
-        if (this.zoomControls) {
-          this.zoomControls.style.display = "none";
-        }
+        this._disableZoomControls();
         return false;
       }
       
@@ -537,17 +530,17 @@ class BarcodeScanner {
       // (некоторые веб-камеры имеют очень маленький диапазон)
       if (max < 1.3) {
         console.log('Максимальное приближение слишком мало, zoom не нужен');
-        if (this.zoomControls) {
-          this.zoomControls.style.display = "none";
-        }
+        this._disableZoomControls();
         return false;
       }
       
       console.log('Кнопки приближения активированы');
+      this._enableZoomControls();
       return true;
     }
     
     console.log('Не удалось получить возможности камеры');
+    this._disableZoomControls();
     return false;
   }
 
@@ -583,6 +576,38 @@ class BarcodeScanner {
       console.log('Не удалось применить приближение:', e);
       // Показываем ошибку пользователю
       this._handleError(`Не удалось установить приближение ${zoom}×`);
+    }
+  }
+
+  _enableZoomControls(){
+    // Включаем кнопки zoom
+    if (this.zoomControls) {
+      const zoomMinus = document.getElementById('zoomMinus');
+      const zoomPlus = document.getElementById('zoomPlus');
+      if (zoomMinus && zoomPlus) {
+        zoomMinus.disabled = false;
+        zoomPlus.disabled = false;
+        zoomMinus.classList.remove('btn-outline-secondary');
+        zoomMinus.classList.add('btn-outline-primary');
+        zoomPlus.classList.remove('btn-outline-secondary');
+        zoomPlus.classList.add('btn-outline-primary');
+      }
+    }
+  }
+
+  _disableZoomControls(){
+    // Отключаем кнопки zoom
+    if (this.zoomControls) {
+      const zoomMinus = document.getElementById('zoomMinus');
+      const zoomPlus = document.getElementById('zoomPlus');
+      if (zoomMinus && zoomPlus) {
+        zoomMinus.disabled = true;
+        zoomPlus.disabled = true;
+        zoomMinus.classList.remove('btn-outline-primary');
+        zoomMinus.classList.add('btn-outline-secondary');
+        zoomPlus.classList.remove('btn-outline-primary');
+        zoomPlus.classList.add('btn-outline-secondary');
+      }
     }
   }
 
@@ -722,9 +747,9 @@ class BarcodeScanner {
     this.status.textContent = "Камера остановлена";
     this._showError(""); this._flashFrame(false);
     
-    // Скрываем элементы управления приближением
+    // Отключаем элементы управления приближением
     if (this.zoomControls) {
-      this.zoomControls.style.display = "none";
+      this._disableZoomControls();
     }
     
     // Сбрасываем приближение
