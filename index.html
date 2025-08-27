@@ -7,14 +7,18 @@
         <meta name="description" content="Сканер штрих-кодов ScannerOGP для мобильных устройств">
         <meta name="theme-color" content="#ff6b35">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="ScannerOGP">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#ff6b35">
+        <meta name="msapplication-TileColor" content="#ff6b35">
         <link rel="icon" type="image/png" href="scannerlogo.png">
         <link rel="apple-touch-icon" href="scannerlogo.png">
         <link rel="manifest" href="manifest.json">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
 *{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;min-height:100dvh;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
 .container{width:100%;max-width:600px;text-align:center;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:30px}
 .header{margin-bottom:30px}
@@ -73,6 +77,21 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
 
 .error{color:#ff6b6b;background:rgba(255,107,53,.1);padding:15px;border-radius:10px;margin:15px 0;border:2px solid #ff6b6b}
 .footer{margin-top:30px;font-size:.9em;color:#999}
+
+/* PWA полноэкранный режим */
+@media (display-mode: standalone) {
+  body { padding: 0; }
+  .container { border-radius: 0; max-width: 100%; }
+  .scanner-wrapper { border-radius: 0; }
+}
+
+/* Скрытие системных элементов браузера */
+@media (display-mode: standalone), (display-mode: minimal-ui) {
+  body { 
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
 @media (max-width:480px){.container{padding:20px}.header h1{font-size:1.8em}.scanner-container{height:300px}.scanner-frame{width:92%;height:130px}.control-panel{height:300px}.control-panel .logo{width:50px;height:50px;margin:0 auto 10px}.btn{padding:12px 25px;font-size:1em}#resultText{font-size:2em}.zoom-buttons{width:fit-content;gap:4px}.zoom-btn{width:28px;height:28px;font-size:14px;flex:0 0 28px;aspect-ratio:1/1}}
         </style>
     </head>
@@ -157,6 +176,24 @@ body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f5f5f5;
         <!-- Quagga2 как финальный фолбэк -->
         <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
         <script>
+// PWA полноэкранный режим
+function enableFullscreen() {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+  } else if (document.documentElement.webkitRequestFullscreen) {
+    document.documentElement.webkitRequestFullscreen();
+  } else if (document.documentElement.msRequestFullscreen) {
+    document.documentElement.msRequestFullscreen();
+  }
+}
+
+// Автоматическое включение полноэкранного режима для PWA
+if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(enableFullscreen, 1000);
+  });
+}
+
 class BarcodeScanner {
   constructor(){
     this.startBtn = document.getElementById("startBtn");
